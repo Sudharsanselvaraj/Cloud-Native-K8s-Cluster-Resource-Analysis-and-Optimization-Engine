@@ -8,14 +8,6 @@
 
 **Analyze · Detect · Recommend — safely.**
 
-[![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?style=flat-square&logo=python&logoColor=white)](https://python.org)
-[![FastAPI](https://img.shields.io/badge/FastAPI-0.110%2B-009688?style=flat-square&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
-[![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?style=flat-square&logo=docker&logoColor=white)](https://docker.com)
-[![Kubernetes](https://img.shields.io/badge/Kubernetes-Native-326CE5?style=flat-square&logo=kubernetes&logoColor=white)](https://kubernetes.io)
-[![Prometheus](https://img.shields.io/badge/Prometheus-Metrics-E6522C?style=flat-square&logo=prometheus&logoColor=white)](https://prometheus.io)
-[![Tests](https://img.shields.io/badge/Tests-21%20Passing-2ea44f?style=flat-square&logo=pytest&logoColor=white)](./tests)
-[![License](https://img.shields.io/badge/License-MIT-yellow?style=flat-square)](LICENSE)
-
 A lightweight, production-safe service that ingests Kubernetes workload metrics and generates
 intelligent CPU & memory right-sizing recommendations — with safety buffers, OOM protection,
 HPA awareness, and Prometheus observability built in.
