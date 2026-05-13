@@ -60,14 +60,14 @@ downsizing recommendations that are safe to apply in production.
   │                    k8s-resource-optimizer                       │
   │                                                                 │
   │   JSON / REST                                                   │
-  │   Input ──────▶  ┌──────────┐   ┌──────────┐   ┌───────────┐  │
-  │                  │  Parser  │──▶│  Engine  │──▶│  Output   │  │
-  │                  │          │   │          │   │           │  │
-  │                  │ Validate │   │ 5-Stage  │   │ CLI Table │  │
-  │                  │ Coerce   │   │ Algorithm│   │ JSON File │  │
-  │                  │ Aggregate│   │          │   │ REST API  │  │
-  │                  │ Errors   │   │          │   │ /metrics  │  │
-  │                  └──────────┘   └──────────┘   └───────────┘  │
+  │   Input ──────▶  ┌──────────┐   ┌──────────┐   ┌───────────┐    │
+  │                  │  Parser  │──▶│  Engine  │──▶│  Output   │    │
+  │                  │          │   │          │   │           │    │
+  │                  │ Validate │   │ 5-Stage  │   │ CLI Table │    │
+  │                  │ Coerce   │   │ Algorithm│   │ JSON File │    │
+  │                  │ Aggregate│   │          │   │ REST API  │    │
+  │                  │ Errors   │   │          │   │ /metrics  │    │
+  │                  └──────────┘   └──────────┘   └───────────┘    │
   │                                                                 │
   └─────────────────────────────────────────────────────────────────┘
 ```
@@ -108,42 +108,42 @@ The engine runs a **5-stage pipeline** per workload — not a naive ratio calcul
   ├────────────────────────────────────────────────────────────────────┤
   │                                                                    │
   │  Stage 1 ── Effective Peak                                         │
-  │  ┌─────────────────────────────────────────────────────────────┐  │
-  │  │  p95_usage available? ──YES──▶ peak = max(avg, p95)         │  │
-  │  │         │                                                    │  │
-  │  │         NO                                                   │  │
-  │  │         ▼                                                    │  │
-  │  │  peak = ceil(avg × SPIKE_HEADROOM)    [default: 1.20×]      │  │
-  │  └─────────────────────────────────────────────────────────────┘  │
+  │  ┌─────────────────────────────────────────────────────────────┐   │
+  │  │  p95_usage available? ──YES──▶ peak = max(avg, p95)         │   │
+  │  │         │                                                   │   │
+  │  │         NO                                                  │   │
+  │  │         ▼                                                   │   │
+  │  │  peak = ceil(avg × SPIKE_HEADROOM)    [default: 1.20×]      │   │
+  │  └─────────────────────────────────────────────────────────────┘   │
   │                         │                                          │
   │                         ▼                                          │
   │  Stage 2 ── Safety Buffer                                          │
-  │  ┌─────────────────────────────────────────────────────────────┐  │
-  │  │  raw = ceil(peak × (1 + SAFETY_BUFFER_PCT))  [default: 25%] │  │
-  │  └─────────────────────────────────────────────────────────────┘  │
+  │  ┌─────────────────────────────────────────────────────────────┐   │
+  │  │  raw = ceil(peak × (1 + SAFETY_BUFFER_PCT))  [default: 25%] │   │
+  │  └─────────────────────────────────────────────────────────────┘   │
   │                         │                                          │
   │                         ▼                                          │
   │  Stage 3 ── Floors & Reduction Cap                                 │
-  │  ┌─────────────────────────────────────────────────────────────┐  │
-  │  │  min_allowed = ceil(request × (1 − MAX_REDUCTION_PCT))      │  │
-  │  │  rec = max(raw, floor, min_allowed)                         │  │
-  │  │  rec = min(rec, current_request)   ← never go UP            │  │
-  │  └─────────────────────────────────────────────────────────────┘  │
+  │  ┌─────────────────────────────────────────────────────────────┐   │
+  │  │  min_allowed = ceil(request × (1 − MAX_REDUCTION_PCT))      │   │
+  │  │  rec = max(raw, floor, min_allowed)                         │   │
+  │  │  rec = min(rec, current_request)   ← never go UP            │   │
+  │  └─────────────────────────────────────────────────────────────┘   │
   │                         │                                          │
   │                         ▼                                          │
   │  Stage 4 ── OOM Guard                                              │
-  │  ┌─────────────────────────────────────────────────────────────┐  │
-  │  │  mem_usage / mem_request > 0.80?                            │  │
-  │  │    YES ──▶ rec × 1.10  +  emit warning                      │  │
-  │  └─────────────────────────────────────────────────────────────┘  │
+  │  ┌─────────────────────────────────────────────────────────────┐   │
+  │  │  mem_usage / mem_request > 0.80?                            │   │
+  │  │    YES ──▶ rec × 1.10  +  emit warning                      │   │
+  │  └─────────────────────────────────────────────────────────────┘   │
   │                         │                                          │
   │                         ▼                                          │
   │  Stage 5 ── HPA Awareness                                          │
-  │  ┌─────────────────────────────────────────────────────────────┐  │
-  │  │  has_hpa = true?                                            │  │
-  │  │    YES ──▶ cpu_rec × 1.10  +  emit warning                  │  │
-  │  │    (per-pod CPU request drives HPA scale-down decisions)    │  │
-  │  └─────────────────────────────────────────────────────────────┘  │
+  │  ┌─────────────────────────────────────────────────────────────┐   │
+  │  │  has_hpa = true?                                            │   │
+  │  │    YES ──▶ cpu_rec × 1.10  +  emit warning                  │   │
+  │  │    (per-pod CPU request drives HPA scale-down decisions)    │   │
+  │  └─────────────────────────────────────────────────────────────┘   │
   │                         │                                          │
   │                         ▼                                          │
   │               OptimizationResult                                   │
@@ -338,11 +338,11 @@ docker run -p 8080:8080 \
   │                          │  readiness: /health      │   │
   │                          │  Prometheus annotations  │   │
   │                          └────────────┬─────────────┘   │
-  │                                       │                  │
+  │                                       │                 │
   │                          ┌────────────▼─────────────┐   │
   │                          │  Service (ClusterIP :80) │   │
   │                          └────────────┬─────────────┘   │
-  │                                       │                  │
+  │                                       │                 │
   │                          ┌────────────▼─────────────┐   │
   │                          │  HPA                     │   │
   │                          │  min: 1  max: 5          │   │
