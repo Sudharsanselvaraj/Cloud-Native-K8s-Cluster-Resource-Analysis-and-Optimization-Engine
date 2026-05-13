@@ -2,7 +2,7 @@
 
 <img src="Assets/k8s.png" height="80" alt="Kubernetes"/>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<img src="Assets/dockerlogo.png" height="80" alt="Docker"/>
+<img src="Assets/pngegg.png" height="80" alt="Docker"/>
 
 # K8s Resource Optimization Engine
 
