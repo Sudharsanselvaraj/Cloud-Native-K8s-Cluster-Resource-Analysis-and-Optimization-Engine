@@ -1,0 +1,26 @@
+[
+  {
+    "deployment": "api-service",
+    "recommended_cpu": 400,
+    "recommended_memory": 1050,
+    "reason": "CPU request is 5.6\u00d7 average usage; Memory request is 2.9\u00d7 average usage \u2014 safe to downsize with buffer applied.",
+    "original_cpu_request": 1000,
+    "original_memory_request": 2048,
+    "cpu_reduction_pct": 60.0,
+    "memory_reduction_pct": 48.7,
+    "is_overprovisioned": true,
+    "warnings": []
+  },
+  {
+    "deployment": "batch-processor",
+    "recommended_cpu": 800,
+    "recommended_memory": 1639,
+    "reason": "CPU request is 6.7\u00d7 average usage; Memory request is 8.0\u00d7 average usage \u2014 safe to downsize with buffer applied.",
+    "original_cpu_request": 2000,
+    "original_memory_request": 4096,
+    "cpu_reduction_pct": 60.0,
+    "memory_reduction_pct": 60.0,
+    "is_overprovisioned": true,
+    "warnings": []
+  }
+]

@@ -1,0 +1,116 @@
+---
+# Namespace
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: k8s-optimizer
+
+---
+# ConfigMap for tunable engine settings
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: optimizer-config
+  namespace: k8s-optimizer
+data:
+  SAFETY_BUFFER_PCT: "0.25"
+  OVERPROV_RATIO: "2.0"
+  MIN_CPU_MILLICORES: "50"
+  MIN_MEMORY_MIB: "64"
+  SPIKE_HEADROOM: "1.20"
+  MAX_REDUCTION_PCT: "0.60"
+
+---
+# Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: k8s-optimizer
+  namespace: k8s-optimizer
+  labels:
+    app: k8s-optimizer
+    version: "1.0.0"
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: k8s-optimizer
+  template:
+    metadata:
+      labels:
+        app: k8s-optimizer
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8080"
+        prometheus.io/path: "/metrics"
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+      containers:
+        - name: optimizer
+          image: k8s-optimizer:1.0.0   # replace with your registry image
+          ports:
+            - containerPort: 8080
+              name: http
+          envFrom:
+            - configMapRef:
+                name: optimizer-config
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 10
+
+---
+# Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: k8s-optimizer
+  namespace: k8s-optimizer
+  labels:
+    app: k8s-optimizer
+spec:
+  selector:
+    app: k8s-optimizer
+  ports:
+    - name: http
+      port: 80
+      targetPort: 8080
+
+---
+# HorizontalPodAutoscaler
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: k8s-optimizer-hpa
+  namespace: k8s-optimizer
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: k8s-optimizer
+  minReplicas: 1
+  maxReplicas: 5
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70

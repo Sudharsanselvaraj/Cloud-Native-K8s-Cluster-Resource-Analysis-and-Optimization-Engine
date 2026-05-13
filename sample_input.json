@@ -1,0 +1,35 @@
+[
+  {
+    "deployment": "api-service",
+    "cpu_request": 1000,
+    "cpu_usage_avg": 180,
+    "memory_request": 2048,
+    "memory_usage_avg": 700
+  },
+  {
+    "deployment": "worker-service",
+    "cpu_request": 500,
+    "cpu_usage_avg": 450,
+    "memory_request": 1024,
+    "memory_usage_avg": 900
+  },
+  {
+    "deployment": "batch-processor",
+    "cpu_request": 2000,
+    "cpu_usage_avg": 300,
+    "memory_request": 4096,
+    "memory_usage_avg": 512,
+    "cpu_usage_p95": 600,
+    "memory_usage_p95": 800,
+    "replicas": 3,
+    "has_hpa": false
+  },
+  {
+    "deployment": "ml-inference",
+    "cpu_request": 4000,
+    "cpu_usage_avg": 3800,
+    "memory_request": 8192,
+    "memory_usage_avg": 7500,
+    "has_hpa": true
+  }
+]

@@ -1,0 +1,31 @@
+version: "3.9"
+
+services:
+  optimizer:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      SAFETY_BUFFER_PCT: "0.25"
+      OVERPROV_RATIO: "2.0"
+      MIN_CPU_MILLICORES: "50"
+      MIN_MEMORY_MIB: "64"
+      SPIKE_HEADROOM: "1.20"
+      MAX_REDUCTION_PCT: "0.60"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8080/health')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  # Optional: Prometheus scraping
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./k8s/prometheus.yml:/etc/prometheus/prometheus.yml
+    depends_on:
+      - optimizer
+    profiles:
+      - monitoring
